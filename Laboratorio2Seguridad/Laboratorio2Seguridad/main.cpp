@@ -3,13 +3,19 @@
 #include <regex>
 #include <ctime>
 #include <stdlib.h>
+#include <unistd.h>
+#include <cctype>
+#include <cstring>
+#include <stdio.h>
+#include <cstdio>
 using namespace std;
 
-string alfabetoMayuscula = { "ABCDEFGHIJKLMNOPQRSTUVWXYZ" };
-string alfabetoMinuscula = { "abcdefghijklmnopqrstuvwxyz" };
-string numeros = { "0123456789" };
+unsigned int microseconds;
+time_t now;
+tm* ltm;
 
-bool checkofequalusername(string password, string username)
+//El password no debe contener el nombre de usuario.
+bool checkforPasswordNotHaveUsername(string password, string username)
 {
 	int count2 = 0;
 	for (int i = 0; i < password.size(); i++)
@@ -25,140 +31,286 @@ bool checkofequalusername(string password, string username)
 	}
 	if (count2!=username.size())
 	{
-		return false;
+		return true;
 	}
 	else
 	{
-		true;
+		return false;
 	}
 }
-
-bool checkforMayus(string password, string username)
+//El password debe contener al menos una mayúscula.
+bool checkforPasswordHaveAtLeastOneCapitalLetter(string password)
 {
-
+	for (int i = 0; i < password.size(); i++)
+	{
+		if (isupper(password[i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+//El password debe contener al menos una minúscula.
+bool checkforPasswordHaveAtLeastOneLowercase(string password)
+{
+	for (int i = 0; i < password.size(); i++)
+	{
+		if (islower(password[i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+//El password debe contener al menos un carácter no alfanumérico.
+bool checkforPasswordHaveAtLeastOneNonAlfanumericItem(string password)
+{
+	for (int i = 0; i < password.size(); i++)
+	{
+		if ( (password[i]<48) or (password[i]>57 and password[i]<65) or (password[i]>90 and password[i]<97) or (password[i]>122) )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+//El password no debe repetir ningún carácter tres veces consecutivos.
+bool checkforPasswordNotHaveThreeSameCharacters(string password)
+{
+	bool temp=true;
+	for (int i = 0; i < password.size()-2; i++)
+	{
+		if (password[i]==password[i+1] and password[i+1]==password[i+2])
+		{
+			temp=false; //HaveThreeSameCharacters
+		}
+	}
+	return temp;
 }
 
-bool checkforMinus(string password, string username)
+//El password solo se puede digitar de 8 am a 10 am. Tomará de referencia la hora del ordenador donde corre el programa.
+bool checkforPasswordOnlyBetween8and10AM()
 {
+	now = time(0);
+	ltm = localtime(&now);
 
-}
-
-bool checkforNoAlfanumeric(string password, string username)
-{
-
-}
-
-bool checkforThreeSameLetters(string password, string username)
-{
-
-}
-
-bool checkforUserCorrectButIncorrectPasswordThreeTimeIn60Seconds(string password, string username)
-{
-
-}
-
-bool checkforPasswordOnlyBetween8and10AM(string password, string username)
-{
-
+	if ( ((1 + ltm->tm_hour) >= 8 and (1 + ltm->tm_min) >= 0 and (1 + ltm->tm_sec) >= 0 ) and
+		 ((1 + ltm->tm_hour) <= 10 and (1 + ltm->tm_min) <= 0 and (1 + ltm->tm_sec) <= 0 ) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 int main() {
 	string user = "FabrizioFlores";
 	string password = "ThisIsASecurePassw0rd!";
-
-	while (true)
-	{
-		string inputuser, inputpassword;
-		cout << "Ingrese su usuario por favor:";
-		cin >> inputuser;
-		if (inputuser==user)
-		{
-			cout << "ingrese su password por favor:";
-			if (checkofequalusername(inputpassword,inputuser)==true)
-			{
-				cout << "El password contiene dentro su username" << endl;
-				cout << "reingrese su passwordl por favor" << endl;
-			}
-			else if (checkforMayus(inputpassword, inputuser)==true)
-			{
-
-			}
-			else if (checkforMinus(inputpassword, inputuser) == true)
-			{
-
-			}
-			else if (checkforNoAlfanumeric(inputpassword, inputuser) == true)
-			{
-
-			}
-			else if (checkforThreeSameLetters(inputpassword, inputuser) == true)
-			{
-
-			}
-			else if (checkforUserCorrectButIncorrectPasswordThreeTimeIn60Seconds(inputpassword, inputuser) == true)
-			{
-
-			}
-			else if (checkforPasswordOnlyBetween8and10AM(inputpassword, inputuser) == true)
-			{
-
-			}
-		}
-		else
-		{
-			cout << "Usuario invalido" << endl;
-			cout << " ingrese usuario denuevo" << endl;
-			continue;
-		}
-
-	}
-	//cin >> cadena;
-	//isip(cadena);
-	//isvarname(cadena);
+	bool programLife = true;
+	string teststring;
+	string inputuser, inputpassword;
 	
-	// current date/time based on current system
-	time_t now = time(0);
 
-	cout << "Number of sec since January 1,1970:" << now << endl;
+	cout << "Ingrese su usuario por favor:"<<endl;
+	cin >> inputuser;
+	while (inputuser!=user)
+	{
+		cout << "Usuario invalido, intente denuevo:" << endl;
+		cin >> inputuser;
+	}
+	cout<<"Usuario Correcto!"<<endl;
+	clock_t start;
+    double duration;
+    int counter=0;
+    now = time(0);
+	ltm = localtime(&now);
+	cout<<"Hora Local: "<<(1 + ltm->tm_hour)<<":" << (1 + ltm->tm_min)<<":" << (1 + ltm->tm_sec) <<endl;
+    if (checkforPasswordOnlyBetween8and10AM() == true)
+	{
+		cout<<"La hora de ingreso es la permitida :)"<<endl;
+		start = clock();
+		duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+		
+		while (counter!=3 and duration<61)
+		{
+			cout<<"Ingrese su contraseña por favor:"<<endl;
+			cin>>inputpassword;
+			counter++;
 
-	tm* ltm = localtime(&now);
+			cout<<"Intentos en menos de 60 segundos: "<<counter<<endl;
+			duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+			cout<<"Tiempo: "<<duration<<" Segundos."<<endl;
 
-	// print various components of tm structure.
-	cout << "Year:" << 1900 + ltm->tm_year << endl;
-	cout << "Month: " << 1 + ltm->tm_mon << endl;
-	cout << "Day: " << ltm->tm_mday << endl;
-	cout << "Time: " << 1 + ltm->tm_hour << ":";
-	cout << 1 + ltm->tm_min << ":";
-	cout << 1 + ltm->tm_sec << endl;
+			bool PasswordNotHaveUsername = checkforPasswordNotHaveUsername(inputpassword,inputuser);
+			bool PasswordHaveAtLeastOneCapitalLetter = checkforPasswordHaveAtLeastOneCapitalLetter(inputpassword);
+			bool PasswordHaveAtLeastOneLowercase = checkforPasswordHaveAtLeastOneLowercase(inputpassword);
+			bool PasswordHaveAtLeastOneNonAlfanumericItem = checkforPasswordHaveAtLeastOneNonAlfanumericItem(inputpassword);
+			bool PasswordNotHaveThreeSameCharacters = checkforPasswordNotHaveThreeSameCharacters(inputpassword);
+			if (PasswordNotHaveUsername==true and 
+				PasswordHaveAtLeastOneCapitalLetter==true and
+				PasswordHaveAtLeastOneLowercase==true and
+				PasswordHaveAtLeastOneNonAlfanumericItem==true and
+				PasswordNotHaveThreeSameCharacters == true and inputpassword==password)
+			{
+				cout<<"Contraseña Correcta, Felicidades!"<<endl;
+				cout<<"Bienvenido: "<<inputuser<<endl;
+				system("PAUSE");
+				system("CLS");
+				break;
+			}
+			else 
+			{
+				cout<<"Se equivoco en la contraseña."<<endl;
+				if (PasswordNotHaveUsername == false)
+				{
+					cout<<"Su contraseña tiene dentro su usuario"<<endl;
+				}
+				if (PasswordHaveAtLeastOneCapitalLetter == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos una letra mayuscula"<<endl;
+				}
+				if (PasswordHaveAtLeastOneLowercase == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos una letra minuscula"<<endl;
+				}
+				if (PasswordHaveAtLeastOneNonAlfanumericItem == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos un caracter no alfanumerico"<<endl;
+				}
+				if (PasswordNotHaveThreeSameCharacters == false)
+				{
+					cout<<"Su contraseña tiene 3 caracteres iguales consecutivos"<<endl;
+				}
+				if (inputpassword != password)
+				{
+					cout<<"La contraseña no coincide con la cuenta"<<endl;
+				}
+
+				//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+				if (counter<3 and duration>60) //Si el numero de intentos es menor a 3 pero el contador sobrepasa los 60 segundos, los intentos se reinician
+				{
+					counter=0;
+					start = clock();
+				}
+				if (counter == 3 and duration < 61)
+				{
+					cout<<"Su usuario sera bloqueado por 3 intentos fallidos en menos de 60 segundos"<<endl;
+					cout<<"Si desea reiniciar el contador de intentos y de tiempo escriba: hackear"<<endl;
+					string hack2;cin>>hack2;
+					if (hack2=="hackear")
+					{
+						counter=0;
+						start = clock();
+						cout<<"Usted hackeo el sistema :O ! "<<endl;
+					}
+					else
+					{
+						cout<<"Bloqueando..."<<endl;
+					}
+				}
+			}				
+		}
+	}
+	else
+	{
+		cout<<"Alternativo, escriba 'hackear' para poder ingresar la contraseña:"<<endl;
+		string hackval; cin>>hackval;
+		if (hackval=="hackear")
+		{
+			start = clock();
+		duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+		
+		while (counter!=3 and duration<61)
+		{
+			cout<<"Ingrese su contraseña por favor:"<<endl;
+			cin>>inputpassword;
+			counter++;
+
+			cout<<"Intentos en menos de 60 segundos: "<<counter<<endl;
+			duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+			cout<<"Tiempo: "<<duration<<" Segundos."<<endl;
+
+			bool PasswordNotHaveUsername = checkforPasswordNotHaveUsername(inputpassword,inputuser);
+			bool PasswordHaveAtLeastOneCapitalLetter = checkforPasswordHaveAtLeastOneCapitalLetter(inputpassword);
+			bool PasswordHaveAtLeastOneLowercase = checkforPasswordHaveAtLeastOneLowercase(inputpassword);
+			bool PasswordHaveAtLeastOneNonAlfanumericItem = checkforPasswordHaveAtLeastOneNonAlfanumericItem(inputpassword);
+			bool PasswordNotHaveThreeSameCharacters = checkforPasswordNotHaveThreeSameCharacters(inputpassword);
+			if (PasswordNotHaveUsername==true and 
+				PasswordHaveAtLeastOneCapitalLetter==true and
+				PasswordHaveAtLeastOneLowercase==true and
+				PasswordHaveAtLeastOneNonAlfanumericItem==true and
+				PasswordNotHaveThreeSameCharacters == true and inputpassword==password)
+			{
+				cout<<"Contraseña Correcta, Felicidades!"<<endl;
+				cout<<"Bienvenido: "<<inputuser<<endl;
+				system("PAUSE");
+				system("CLS");
+				break;
+			}
+			else 
+			{
+				cout<<"Se equivoco en la contraseña."<<endl;
+				if (PasswordNotHaveUsername == false)
+				{
+					cout<<"Su contraseña tiene dentro su usuario"<<endl;
+				}
+				if (PasswordHaveAtLeastOneCapitalLetter == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos una letra mayuscula"<<endl;
+				}
+				if (PasswordHaveAtLeastOneLowercase == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos una letra minuscula"<<endl;
+				}
+				if (PasswordHaveAtLeastOneNonAlfanumericItem == false)
+				{
+					cout<<"Su contraseña no tiene por lo menos un caracter no alfanumerico"<<endl;
+				}
+				if (PasswordNotHaveThreeSameCharacters == false)
+				{
+					cout<<"Su contraseña tiene 3 caracteres iguales consecutivos"<<endl;
+				}
+				if (inputpassword != password)
+				{
+					cout<<"La contraseña no coincide con la cuenta"<<endl;
+				}
+
+				//duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+				if (counter<3 and duration>60) //Si el numero de intentos es menor a 3 pero el contador sobrepasa los 60 segundos, los intentos se reinician
+				{
+					counter=0;
+					start = clock();
+				}
+				if (counter == 3 and duration < 61)
+				{
+					cout<<"Su usuario sera bloqueado por 3 intentos fallidos en menos de 60 segundos"<<endl;
+					cout<<"Si desea reiniciar el contador de intentos y de tiempo escriba: hackear"<<endl;
+					string hack2;cin>>hack2;
+					if (hack2=="hackear")
+					{
+						counter=0;
+						start = clock();
+						cout<<"Usted hackeo el sistema :O ! "<<endl;
+					}
+					else
+					{
+						cout<<"Bloqueando..."<<endl;
+					}
+				}
+			}				
+		}
+		}
+		else	
+		{
+			cout<<"Adios"<<endl;
+		}
+	}
 
 
+	
 	return 0;
 }
 
-/*
-
-Objetivo.
-Trabajo individual donde el alumno realizará un programa pequeño de control de acceso con password
-Procedimiento:
-El alumno implementará en cualquiera de los siguientes lenguajes de programación: C++ o en Python. El
-programa deberá pedir un usuario, un password y devolverá la información de que dicho password cumple
-o no con las políticas indicadas más adelante y tiene acceso o no.
-El usuario y password lo establecerá previamente e implementará en su programa
-El alumno preparará un software y lo enviará desde su correo institucional al correo eheredia@ucsp.edu.pe
-
-Políticas de password:
-1. El usuario será su nombre y su apellido y el password deberá de tener por lo menos 8 caracteres,
-Cualquier otro usuario no permitirá el acceso.
-2. El password no debe contener el nombre de usuario.
-3. El password debe contener al menos una mayúscula.
-4. El password debe contener al menos una minúscula.
-5. El password debe contener al menos un carácter no alfanumérico.
-6. El password no debe repetir ningún carácter tres veces consecutivos.
-7. Si el usuario es correcto y el password falla más de 3 veces en 60 segundos debe indicar que
-posteriormente se bloqueara al usuario (solo indicar que se bloqueará, para poder hacer las
-pruebas)
-8. El password solo se puede digitar de 8 am a 10 am. Tomará de referencia la hora del ordenador
-donde corre el programa.
-*/
 
