@@ -3,7 +3,7 @@
 #include <regex>
 #include <ctime>
 #include <stdlib.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <cctype>
 #include <cstring>
 #include <stdio.h>
@@ -94,8 +94,8 @@ bool checkforPasswordOnlyBetween8and10AM()
 	now = time(0);
 	ltm = localtime(&now);
 
-	if ( ((1 + ltm->tm_hour) >= 8 and (1 + ltm->tm_min) >= 0 and (1 + ltm->tm_sec) >= 0 ) and
-		 ((1 + ltm->tm_hour) <= 10 and (1 + ltm->tm_min) <= 0 and (1 + ltm->tm_sec) <= 0 ) )
+	if ( ((ltm->tm_hour) >= 8 and (ltm->tm_min) >= 0 and (ltm->tm_sec) >= 0 ) and
+		 ((ltm->tm_hour) <= 10 and (ltm->tm_min) <= 0 and (ltm->tm_sec) <= 0 ) )
 	{
 		return true;
 	}
@@ -126,7 +126,7 @@ int main() {
     int counter=0;
     now = time(0);
 	ltm = localtime(&now);
-	cout<<"Hora Local: "<<(1 + ltm->tm_hour)<<":" << (1 + ltm->tm_min)<<":" << (1 + ltm->tm_sec) <<endl;
+	cout<<"Hora Local: "<<(ltm->tm_hour)<<":" << (ltm->tm_min)<<":" << (ltm->tm_sec) <<endl;
     if (checkforPasswordOnlyBetween8and10AM() == true)
 	{
 		cout<<"La hora de ingreso es la permitida :)"<<endl;
@@ -215,7 +215,8 @@ int main() {
 	}
 	else
 	{
-		cout<<"Alternativo, escriba 'hackear' para poder ingresar la contraseña:"<<endl;
+		cout << "La hora de ingreso de contraseña es invalida !" << endl;
+		cout<<"Alternativa, escriba 'hackear' para poder ingresar la contraseña:"<<endl;
 		string hackval; cin>>hackval;
 		if (hackval=="hackear")
 		{
